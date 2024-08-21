@@ -1,0 +1,5 @@
+# Node modules
+node_modules/
+
+# iOS Pods
+ios/Pods/
