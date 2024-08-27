@@ -36,12 +36,12 @@ const OrderOngoing = (props) => {
   }  
 
   useEffect( () => {
-    const onValueChange = database()
-    .ref(`/orders/${id}`)
-    .on('value', snapshot => {
+    // const onValueChange = database()
+    // .ref(`/orders/${id}`)
+    // .on('value', snapshot => {
       get_order_detail();
-    });
-    return () => database().ref(`/orders/${id}`).off('value', onValueChange);
+    // });
+    // return () => database().ref(`/orders/${id}`).off('value', onValueChange);
   },[]); 
 
   const partner_location_sync = (partner_id) =>{

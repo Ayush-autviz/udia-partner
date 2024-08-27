@@ -34,6 +34,12 @@ const Profile = (props) => {
   const [profile_image,setProfileImage] = useState("");
   const [phone_number, setPhoneNumber] = useState("");   
   const [profile_timer,setProfileTimer] = useState(true);
+  const [NIN_data,setNINData] = useState(""); 
+  const [NIN_image,setNINImage] = useState(""); 
+  const [id_data,setIdData] = useState(""); 
+  const [id_image,setIdImage] = useState(""); 
+  const [accountNumber,setAccountNumber] = useState('');
+  const [bankName,setBankName] = useState("")
 
   const handleBackButtonClick= () => {
     navigation.goBack()
@@ -61,7 +67,7 @@ const Profile = (props) => {
     await axios({
       method: 'post', 
       url: api_url + profile_update,
-      data:{ id: global.id, email:email, delivery_boy_name:delivery_boy_name }
+      data:{ id: global.id, email:email, delivery_boy_name:delivery_boy_name,account_number:accountNumber,bank_name:bankName }
     })
     .then(async response => {
       setLoading(false);
@@ -92,6 +98,60 @@ const Profile = (props) => {
         await handleBackButtonClick();
       }catch (e) {
         alert(e);
+    }
+  }
+
+  const select_Id = async () => {
+    console.log('hello');
+    if(profile_timer){
+      ImagePicker.launchImageLibrary(options, async(response) => {
+        if (response.didCancel) {
+          console.log('User cancelled image picker');
+        } else if (response.error) {
+          console.log('ImagePicker Error: ', response.error);
+        } else {
+          const source =  await response.assets[0].uri;
+            await setIdData(response.data)
+            await ImgToBase64.getBase64String(response.assets[0].uri)
+          .then(async base64String => {
+            await chequeimageupdate(base64String);
+            await setIdImage(response.assets[0].uri);
+          }
+            )
+          .catch(err => console.log(err));
+          
+         // await profileimageupdate();
+        }
+      });
+    }else{
+      alert('Please try after 20 seconds');
+    }
+  }
+
+  const select_Card = async () => {
+    console.log('hello');
+    if(profile_timer){
+      ImagePicker.launchImageLibrary(options, async(response) => {
+        if (response.didCancel) {
+          console.log('User cancelled image picker');
+        } else if (response.error) {
+          console.log('ImagePicker Error: ', response.error);
+        } else {
+          const source =  await response.assets[0].uri;
+            await setNINData(response.data)
+            await ImgToBase64.getBase64String(response.assets[0].uri)
+          .then(async base64String => {
+           await identityimageupdate(base64String);
+            await setNINImage(response.assets[0].uri);
+          }
+            )
+          .catch(err => console.log(err));
+          
+         // await profileimageupdate();
+        }
+      });
+    }else{
+      alert('Please try after 20 seconds');
     }
   }
 
@@ -168,6 +228,54 @@ const Profile = (props) => {
       });
   }
 
+  const chequeimageupdate = async(img_data) =>{
+    await setLoading(true);
+    RNFetchBlob.fetch('POST', api_url + 'restaurant/cancelled_cheque_img', {
+      'Content-Type' : 'multipart/form-data',
+    }, [
+      {  
+        name : 'image',
+        filename : 'image.png', 
+        type:'image/png', 
+        data: img_data
+      }
+    ]).then(async (resp) => { 
+      await setLoading(false);
+      let data = await JSON.parse(resp.data);
+      if(data.result){
+       await cheque_image_update(data.result);
+        await setProfileTimer(false);
+        await setTimeout(function(){setProfileTimer(true)}, 20000)
+      }
+    }).catch((err) => {
+        setLoading(false);
+        alert('Error on while upload try again later.')
+    })
+  }
+
+  const identity_image_update = async (data) => {
+    setLoading(true);
+      await axios({
+        method: 'post', 
+        url: api_url+'restaurant/id_card_img_update',
+        data: {id:global.id, id_card_img:data}
+      })
+      .then(async response => {
+        setLoading(false);
+        console.log(response)
+        if(response.data.status == 1){
+          alert("Update Successfully")
+          //saveProfilePicture(data);
+        }else{
+          alert(response.data.message)
+        }
+      })
+      .catch(error => {
+          setLoading(false);
+          alert("Sorry something went wrong")
+      });
+  }
+
   const saveProfilePicture = async(data) =>{
     try{
         await AsyncStorage.setItem('profile_picture', data.toString());
@@ -186,15 +294,22 @@ const Profile = (props) => {
       data:{ id: global.id }
     })
     .then(async response => {
+      console.log(response.data,'response');
       setLoading(false);
       setEmail(response.data.result.email);
       setDeliveryBoyName(response.data.result.delivery_boy_name);
       setPhoneNumber(response.data.result.phone_number);
       props.updatePartnerProfilePicture(response.data.result.profile_picture);
+      setAccountNumber(response.data.result.account_number);
+      setIdImage(img_url+response.data.result.cancelled_cheque_img);
+      console.log(img_url+response.data.result.cancelled_cheque_img,'image');
+      setNINImage(img_url+response.data.result.id_card_img);
+      setBankName(response.data.result.bank_name)
 
     })
     .catch(error => {
       setLoading(false);
+      console.log(error);
       alert('Sorry something went wrong')
     });
   }
@@ -244,6 +359,52 @@ const Profile = (props) => {
             value={email}
           />
         </View>
+        <View style={{ margin:5 }}/>
+        <View
+          style={styles.textFieldcontainer}>
+          <TextInput
+            style={styles.textField}
+            placeholder="Bank Name"
+            placeholderTextColor={colors.grey}
+            underlineColorAndroid="transparent"
+            onChangeText={text => setBankName(text)}
+            value={bankName}
+          />
+        </View>
+        <View style={{ margin:5 }}/>
+        <View
+          style={styles.textFieldcontainer}>
+          <TextInput
+            style={styles.textField}
+            placeholder="Account Number"
+            placeholderTextColor={colors.grey}
+            underlineColorAndroid="transparent"
+            onChangeText={text => setAccountNumber(text)}
+            value={accountNumber}
+          />
+        </View>
+        <View style={{ margin:10 }}/>
+        <TouchableOpacity style={styles.idContainer} onPress={()=>{select_Id()}}>
+            {
+              !id_image &&  <Text style={{color:colors.theme_bg,textAlign:"center",marginVertical:5,marginBottom:10}}>Upload</Text>
+            }
+           
+            <Text style={{textAlign:"center",color:colors.grey, fontSize:14,fontWeight:'500'}}>Cancelled cheque</Text>
+            {
+              id_image &&  <Image style={styles.image} source={{ uri : id_image}}/>
+            }
+        </TouchableOpacity>
+        <View style={{ margin:10 }}/>
+        <TouchableOpacity style={styles.idContainer} onPress={()=>{select_Card()}}>
+          {
+            !NIN_image && <Text style={{color:colors.theme_bg,textAlign:"center",marginVertical:5,marginBottom:10}}>Upload</Text>
+          }
+            <Text style={{textAlign:"center",color:colors.grey, fontSize:14,fontWeight:'500'}}>National Identity Card</Text>
+            {
+              NIN_image && <Image style={styles.image} source={{ uri : NIN_image}}/>
+            }
+        
+        </TouchableOpacity>
         <View style={{ margin:20 }}/>
         <TouchableOpacity activeOpacity={1} onPress={profile_validation.bind(this)}  style={styles.button}>
           <Text style={{ color:colors.theme_fg_three, fontFamily:bold, fontSize:14}}>Submit</Text>

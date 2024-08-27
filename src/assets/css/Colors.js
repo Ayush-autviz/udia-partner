@@ -1,5 +1,5 @@
-export const theme_bg = "#ff6101";
-export const theme_fg = "#ff6101";
+export const theme_bg = "#E92D36";
+export const theme_fg = "#E92D36";
 export const theme_light = "#c9ddf5";
 export const theme_fg_two = "#202028";
 export const theme_bg_three = "#FFFFFF";

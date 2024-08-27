@@ -1,9 +1,9 @@
 import { Dimensions } from 'react-native';
 
 export const settings = "deliveryboy/app_setting";
-export const base_url = "http://13.233.216.71:8000/";
-export const api_url = "http://13.233.216.71:8000/api/";
-export const img_url = "http://13.233.216.71:8000/uploads/";
+export const base_url = "https://Myudia.com/";
+export const api_url = "https://Myudia.com/api/";
+export const img_url = "https://Myudia.com/uploads/";
 export const app_name = "Foodlakh"; 
 
 export const faq = "delivery_boy/faq";
@@ -48,7 +48,7 @@ export const veg = require('.././assets/img/veg.png');
 export const non_veg = require('.././assets/img/non_veg.png');
 export const email = require('.././assets/img/email.png');
 export const profile_img = require('.././assets/img/profile.png');
-export const logo_with_name = require('.././assets/img/logo_with_name.png');
+export const logo_with_name = require('.././assets/img/UDIAlogo.png');
 export const wallet = require('.././assets/img/wallet.png');
 export const wallet_money = require('.././assets/img/wallet_money.png');
 export const biryani = require('.././assets/img/biryani.jpeg');

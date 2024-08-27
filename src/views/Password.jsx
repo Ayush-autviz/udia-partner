@@ -8,7 +8,7 @@ import axios from 'axios';
 import { Loader } from '../components/Loader';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { connect } from 'react-redux'; 
-import { updatePartnerProfilePicture, updatePartnerName } from '../actions/PartnerRegisterActions';
+import { updatePartnerProfilePicture, updatePartnerName, updatePartnerOnlineStatus } from '../actions/PartnerRegisterActions';
 
 const Password = (props) => {
   const navigation = useNavigation();
@@ -69,6 +69,7 @@ const Password = (props) => {
         global.email = await data.result.email.toString();
         await props.updatePartnerName(data.result.delivery_boy_name.toString());
         await props.updatePartnerProfilePicture(data.result.profile_picture.toString());
+        await props.updatePartnerOnlineStatus(data.result.online_status);
 
         
         await home();
@@ -194,6 +195,7 @@ function mapStateToProps(state){
 const mapDispatchToProps = (dispatch) => ({
   updatePartnerProfilePicture: (data) => dispatch(updatePartnerProfilePicture(data)),
   updatePartnerName: (data) => dispatch(updatePartnerName(data)),
+  updatePartnerOnlineStatus: (data) => dispatch(updatePartnerOnlineStatus(data)), 
 
 });
 

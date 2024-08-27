@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, Alert } from 'react';
 import { StyleSheet, View, Text,  Image, ImageBackground ,StatusBar} from 'react-native';
 import * as colors from '../assets/css/Colors';
-import { app_name, light, regular, bold, logo_with_name, splash_image, api_url, settings} from '../config/Constants';
+import { app_name, light, regular, bold, logo_with_name, splash_image, api_url, settings, get_profile} from '../config/Constants';
 import { useNavigation, CommonActions } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
@@ -55,6 +55,7 @@ const Splash = (props) => {
       await configure();
       await channel_create();
       await saveData(response.data.result)
+      //navigate_home();
     })
     .catch(error => {
       navigate_home();
@@ -162,7 +163,33 @@ const Splash = (props) => {
     });
   }
 
+  const view_profile = async () => {
+    
+    await axios({
+      method: 'post', 
+      url: api_url + get_profile,
+      data:{ id: global.id }
+    })
+    .then(async response => {
+      console.log(response.data,'response');
+      
+      
+      await props.updatePartnerName(response.data.result.delivery_boy_name);
+      await props.updatePartnerProfilePicture(response.data.result.profile_picture);
+      await props.updatePartnerOnlineStatus(response.data.result.online_status);
+
+   
+
+    })
+    .catch(error => {
+      setLoading(false);
+      console.log(error);
+      alert('Sorry something went wrong')
+    });
+  }
+
   const saveData = async(data) =>{
+    console.log(data,'dataaaaaa');
     const id = await AsyncStorage.getItem('id');
     const delivery_boy_name = await AsyncStorage.getItem('delivery_boy_name');
     const phone_number = await AsyncStorage.getItem('phone_number');
@@ -180,10 +207,11 @@ const Splash = (props) => {
       global.phone_number = await phone_number;
       global.phone_with_code = await phone_with_code;
       global.email = await email;
-      await props.updatePartnerOnlineStatus(online_status);
-      await props.updatePartnerProfilePicture(profile_picture);
-      await props.updatePartnerName(delivery_boy_name);
-      
+      view_profile();
+      // await props.updatePartnerOnlineStatus(online_status);
+      // await props.updatePartnerProfilePicture(profile_picture);
+      // await props.updatePartnerName(delivery_boy_name);
+      navigate_home();
       
      }else{
       global.id = '';
@@ -211,7 +239,7 @@ const Splash = (props) => {
 
 return (
 
-  <View style={{justifyContent:'center', alignItems:'center', flex:1}}>
+  <View style={{justifyContent:'center', alignItems:'center', flex:1,backgroundColor:"#fff"}}>
     <StatusBar backgroundColor={colors.theme_bg}/>
   <View style={styles.logo} >
     <Image style= {{ height: undefined,width: undefined,flex: 1 }} source={logo_with_name} />

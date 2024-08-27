@@ -21,8 +21,15 @@ const More = (props) => {
   const [dialog_visible, setDialogVisible] = useState(false);
 
   const showDialog = () => {
-    setDialogVisible(true);
+    console.log(props.partner_online_status,'online status');
+    if(props.partner_online_status){
+      alert('Turn off your online status before logging out');
+
+    }else{
+      setDialogVisible(true);
+    }
   }
+ 
 
   const closeDialog = () => {
     setDialogVisible(false);
@@ -110,6 +117,8 @@ const More = (props) => {
   const profile = () => {
     navigation.navigate("Profile")
   }
+
+  console.log(img_url + props.partner_profile_picture)
 
 
   const renderItem = ({ item }) => (
@@ -222,6 +231,7 @@ function mapStateToProps(state) {
   return {
     partner_profile_picture: state.partner_register.partner_profile_picture,
     partner_name: state.partner_register.partner_name,
+    partner_online_status : state.partner_register.partner_online_status,
   };
 }
 

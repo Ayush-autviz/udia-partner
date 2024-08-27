@@ -68,16 +68,35 @@ const options = {
     color: '#ff00ff',
     linkingURI: 'yourSchemeHere://chat/jane', // See Deep Linking for more info
     parameters: {
-        delay: 50000,
+        delay: 10000,
     },
 };
 const trackLocation = async ()=>{
-  await BackgroundService.start(veryIntensiveTask, options);
-  await BackgroundService.updateNotification({taskDesc: 'New ExampleTask description'});
-  BackgroundService.on('expiration', () => {
-    console.log('I am being closed :(');
-});
+  console.log(props.partner_online_status,'online status');
+  if(props.partner_online_status == 1){
+    await BackgroundService.start(veryIntensiveTask, options);
+    await BackgroundService.updateNotification({taskDesc: 'New ExampleTask description'});
+  }else{
+  }
 }
+
+
+useEffect(() => {
+  const onValueChange = database()
+  .ref(`/delivery_partners/${global.id}`)
+  .on('value', snapshot => {
+    console.log("data",snapshot.val())
+    if(snapshot?.val()?.on_stat == 1 && snapshot?.val()?.o_stat == 1){
+      sync(snapshot?.val()?.o_id);
+    }
+  });
+ call_dashboard();
+const unsubscribe = navigation.addListener('focus', async () => {
+  //await get_location();
+  await call_dashboard();
+  });
+  return unsubscribe;
+},[]);
 
 useEffect(() => {
   
@@ -87,7 +106,13 @@ useEffect(() => {
     console.log(error);
   }
  
-}, []);
+}, [props.partner_online_status]);
+
+useEffect(()=>{
+  setSwitchValue(props.partner_online_status === 1)
+},[props])
+
+
 
 
   const ref_variable = async() =>{
@@ -96,30 +121,9 @@ useEffect(() => {
     }, 200);
   }
 
-  useEffect(() => {
-    const onValueChange = database()
-    .ref(`/delivery_partners/${global.id}`)
-    .on('value', snapshot => {
-      console.log("data",snapshot.val())
-      if(snapshot.val().on_stat == 1 && snapshot.val().o_stat == 1){
-        sync(snapshot.val().o_id);
-      }
-    });
-    if(props.partner_online_status == 1){
-      setSwitchValue(true);
-    }else{
-      setSwitchValue(false);
-    }
-   // sync(2);
-   //sync(109);
 
-   call_dashboard();
-  const unsubscribe = navigation.addListener('focus', async () => {
-    //await get_location();
-    await call_dashboard();
-    });
-    return unsubscribe;
-  },[]);
+
+
 
   
 
@@ -400,6 +404,7 @@ useEffect(() => {
       await setSwitchValue( value );  
       await online_status(0);
       await saveData(0);
+      await BackgroundService.stop();
     }  
   }
 
